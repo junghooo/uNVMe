@@ -580,8 +580,10 @@ static unsigned long long get_next_buflen(struct thread_data *td, struct io_u *i
 		r = __rand(&td->bsrange_state[ddir]);
 
 		if (!td->o.bssplit_nr[ddir]) {
-			buflen = minbs + (unsigned long long) ((double) maxbs *
-					(r / (frand_max + 1.0)));
+			buflen = minbs + (unsigned long long) ((double) maxbs * (r / (frand_max + 1.0)));
+			//buflen = minbs + (unsigned long long) (((double) maxbs - (double) minbs) * (r / (frand_max + 1.0)));
+			//log_info("[ratio] : %lf\n", r/(frand_max+1.0));
+			log_info("[buflen] : %llu\n", buflen);
 		} else {
 			long long perc = 0;
 			unsigned int i;

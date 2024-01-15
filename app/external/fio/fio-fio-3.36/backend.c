@@ -1031,6 +1031,9 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
 			break;
 
 		io_u = get_io_u(td);
+		//test log
+		log_info("[do_io size] : %llu\n", io_u->buflen);
+
 		if (IS_ERR_OR_NULL(io_u)) {
 			int err = PTR_ERR(io_u);
 
