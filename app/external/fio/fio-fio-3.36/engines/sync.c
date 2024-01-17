@@ -117,8 +117,10 @@ static int fio_io_end(struct thread_data *td, struct io_u *io_u, int ret)
 			io_u->resid = io_u->xfer_buflen - ret;
 			io_u->error = 0;
 			return FIO_Q_COMPLETED;
-		} else
+		} else{
+			if(errno != EINVAL)
 			io_u->error = errno;
+		}
 	}
 
 	if (io_u->error) {

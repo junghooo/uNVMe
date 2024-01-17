@@ -722,8 +722,8 @@ static int fixup_options(struct thread_data *td)
 			"verify limited\n");
 		ret |= warnings_fatal;
 	}
-	if (o->bs_unaligned && (o->odirect || td_ioengine_flagged(td, FIO_RAWIO)))
-		log_err("fio: bs_unaligned may not work with raw io\n");
+	//if (o->bs_unaligned && (o->odirect || td_ioengine_flagged(td, FIO_RAWIO)))
+	//	log_err("fio: bs_unaligned may not work with raw io\n");
 
 	/*
 	 * thinktime_spin must be less than thinktime
