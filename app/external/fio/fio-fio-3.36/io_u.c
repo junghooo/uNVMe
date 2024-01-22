@@ -44,14 +44,20 @@ static uint64_t mark_random_map(struct thread_data *td, struct io_u *io_u,
 	nr_blocks = (buflen + min_bs - 1) / min_bs;
 	assert(nr_blocks > 0);
 
-	if (!(io_u->flags & IO_U_F_BUSY_OK)) {
+	log_info("[block] : %lu\n", block);
+	//log_info("[nr_block 1] : %llu\t", nr_blocks);
+	if (!(io_u->flags & IO_U_F_BUSY_OK)) { //must run when bsrange is true.(check complite)
 		nr_blocks = axmap_set_nr(f->io_axmap, block, nr_blocks);
 		assert(nr_blocks > 0);
 	}
 
+	log_info("[nr_block 2] : %llu\t", nr_blocks);
+	//log_info("[nr_block size] : %llu\t", nr_blocks*min_bs);
+	//log_info("[buflen] : %lu\t", buflen);	
 	if ((nr_blocks * min_bs) < buflen)
 		buflen = nr_blocks * min_bs;
 
+	log_info("[F buflen] : %lu\n", buflen);
 	return buflen;
 }
 
@@ -497,7 +503,7 @@ static int get_next_offset(struct thread_data *td, struct io_u *io_u,
 
 	if (get_next_block(td, io_u, ddir, rw_seq_hit, is_random))
 		return 1;
-
+	
 	if (io_u->offset >= f->io_size) {
 		dprint(FD_IO, "get_next_offset: offset %llu >= io_size %llu\n",
 					(unsigned long long) io_u->offset,
@@ -551,6 +557,7 @@ static unsigned long long get_next_buflen(struct thread_data *td, struct io_u *i
 	unsigned long long minbs, maxbs;
 	uint64_t frand_max, r;
 	bool power_2;
+	unsigned long long testbs = 0;
 
 	assert(ddir_rw(ddir));
 
@@ -580,10 +587,12 @@ static unsigned long long get_next_buflen(struct thread_data *td, struct io_u *i
 		r = __rand(&td->bsrange_state[ddir]);
 
 		if (!td->o.bssplit_nr[ddir]) {
-			buflen = minbs + (unsigned long long) ((double) maxbs * (r / (frand_max + 1.0)));
-			//buflen = minbs + (unsigned long long) (((double) maxbs - (double) minbs) * (r / (frand_max + 1.0)));
+			//buflen = minbs + (unsigned long long) ((double) maxbs * (r / (frand_max + 1.0)));
+			buflen = minbs + (unsigned long long) (((double) (maxbs - minbs + 1)) * (r / (frand_max + 1.0)));
+			//log_info("[rand] : %lu\n", r);
 			//log_info("[ratio] : %lf\n", r/(frand_max+1.0));
-			log_info("[buflen] : %llu\n", buflen);
+			//log_info("[test bs] : %llu\n", testbs);
+			//log_info("[buflen] : %llu\n", buflen);
 		} else {
 			long long perc = 0;
 			unsigned int i;
@@ -610,6 +619,7 @@ static unsigned long long get_next_buflen(struct thread_data *td, struct io_u *i
 			buflen = maxbs;
 	} while (!io_u_fits(td, io_u, buflen));
 
+	//log_info("[buflen] : %llu\n", buflen);
 	return buflen;
 }
 

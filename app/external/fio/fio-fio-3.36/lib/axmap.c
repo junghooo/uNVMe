@@ -300,23 +300,32 @@ unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr,
 			  unsigned int nr_bits)
 {
 	unsigned int set_bits = 0;
+	int i = 1;
 
 	do {
 		struct axmap_set_data data = { .nr_bits = nr_bits, };
 		unsigned int max_bits, this_set;
 
 		max_bits = BLOCKS_PER_UNIT - (bit_nr & BLOCKS_PER_UNIT_MASK);
+		printf("[max_bits %d] : %u\t", i, max_bits); //test
+		printf("[nr_bits %d] : %u\t", i, data.nr_bits);
 		if (nr_bits > max_bits)
 			data.nr_bits = max_bits;
+		printf("[nr_bits %d_2] : %u\t", i, data.nr_bits);
 
 		this_set = data.nr_bits;
 		__axmap_set(axmap, bit_nr, &data);
 		set_bits += data.set_bits;
-		if (data.set_bits != this_set)
+		printf("[set_bits %d] : %u\n", i, data.set_bits);
+		if (data.set_bits != this_set){
+			printf("[break]");
 			break;
+		}
 
 		nr_bits -= data.set_bits;
 		bit_nr += data.set_bits;
+
+		i++;
 	} while (nr_bits);
 
 	return set_bits;
