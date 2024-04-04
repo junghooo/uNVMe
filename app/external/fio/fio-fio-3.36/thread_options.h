@@ -116,6 +116,7 @@ struct thread_options {
 
 	unsigned long long bs[DDIR_RWDIR_CNT];
 	unsigned long long ba[DDIR_RWDIR_CNT];
+	unsigned long long bsa[DDIR_RWDIR_CNT];
 	unsigned long long min_bs[DDIR_RWDIR_CNT];
 	unsigned long long max_bs[DDIR_RWDIR_CNT];
 	struct bssplit *bssplit[DDIR_RWDIR_CNT];
@@ -440,6 +441,7 @@ struct thread_options_pack {
 
 	uint64_t bs[DDIR_RWDIR_CNT];
 	uint64_t ba[DDIR_RWDIR_CNT];
+	uint64_t bsa[DDIR_RWDIR_CNT];
 	uint64_t min_bs[DDIR_RWDIR_CNT];
 	uint64_t max_bs[DDIR_RWDIR_CNT];
 	struct bssplit bssplit[DDIR_RWDIR_CNT][BSSPLIT_MAX];

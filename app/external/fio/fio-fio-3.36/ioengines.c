@@ -386,7 +386,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
 	}
 
 	//test print buflen
-	//log_info("[len value] : %llu\n", buflen);
+	//log_info("[JH] len_value : %llu\n", buflen);
 
 	ret = td->io_ops->queue(td, io_u);
 	zbd_queue_io_u(td, io_u, ret);
@@ -465,6 +465,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
 		}
 	}
 
+	//log_info("[JH] io_queue : %d\n",ret);
 	return ret;
 }
 

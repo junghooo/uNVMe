@@ -2471,6 +2471,23 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
 		.category = FIO_OPT_C_IO,
 		.group	= FIO_OPT_G_INVALID,
 	},
+	//make new option(jh)
+	{
+		.name	= "bsa",
+		.lname	= "Block size align",
+		.alias	= "bsalign",
+		.type	= FIO_OPT_ULL,
+		.off1	= offsetof(struct thread_options, bsa[DDIR_READ]),
+		.off2	= offsetof(struct thread_options, bsa[DDIR_WRITE]),
+		.off3	= offsetof(struct thread_options, bsa[DDIR_TRIM]),
+		.minval	= 1,
+		.help	= "IO block size alignment",
+		.parent	= "rw",
+		.hide	= 1,
+		.interval = 512,
+		.category = FIO_OPT_C_IO,
+		.group	= FIO_OPT_G_INVALID,
+	},
 	{
 		.name	= "bs_is_seq_rand",
 		.lname	= "Block size division is seq/random (not read/write)",

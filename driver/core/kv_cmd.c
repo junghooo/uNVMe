@@ -262,9 +262,11 @@ int _kv_nvme_retrieve(kv_nvme_t *nvme, kv_pair *kv, int qid) {
                 LEAVE();
                 return ret;
         }
+	/*
         if (kv->value.length & (KV_VALUE_LENGTH_ALIGNMENT_UNIT - 1))
           return KV_ERR_MISALIGNED_VALUE_SIZE;
-        if (kv->value.offset & (KV_ALIGNMENT_UNIT - 1)) {
+        */
+	  if (kv->value.offset & (KV_ALIGNMENT_UNIT - 1)) {
           return KV_ERR_MISALIGNED_VALUE_OFFSET;
         }
 
@@ -324,9 +326,11 @@ int _kv_nvme_retrieve_async(kv_nvme_t *nvme, kv_pair *kv, int qid) {
                 LEAVE();
                 return ret;
         }
-        if (kv->value.length & (KV_VALUE_LENGTH_ALIGNMENT_UNIT- 1))
+        /*
+	if (kv->value.length & (KV_VALUE_LENGTH_ALIGNMENT_UNIT- 1))
           return KV_ERR_MISALIGNED_VALUE_SIZE;
-        if(kv->value.offset & (KV_ALIGNMENT_UNIT - 1)) {
+        */
+	if(kv->value.offset & (KV_ALIGNMENT_UNIT - 1)) {
           return KV_ERR_MISALIGNED_VALUE_OFFSET;
         }
 

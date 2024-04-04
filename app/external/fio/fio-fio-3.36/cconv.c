@@ -124,6 +124,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
 		o->bs[i] = le64_to_cpu(top->bs[i]);
 		o->ba[i] = le64_to_cpu(top->ba[i]);
+		o->bsa[i] = le64_to_cpu(top->bsa[i]);
 		o->min_bs[i] = le64_to_cpu(top->min_bs[i]);
 		o->max_bs[i] = le64_to_cpu(top->max_bs[i]);
 		o->bssplit_nr[i] = le32_to_cpu(top->bssplit_nr[i]);
@@ -558,6 +559,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
 		top->bs[i] = __cpu_to_le64(o->bs[i]);
 		top->ba[i] = __cpu_to_le64(o->ba[i]);
+		top->bsa[i] = __cpu_to_le64(o->bsa[i]);
 		top->min_bs[i] = __cpu_to_le64(o->min_bs[i]);
 		top->max_bs[i] = __cpu_to_le64(o->max_bs[i]);
 		top->bssplit_nr[i] = cpu_to_le32(o->bssplit_nr[i]);

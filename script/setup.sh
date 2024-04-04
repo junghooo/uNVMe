@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+#set -x
 set -e
 
 rootdir=$(readlink -f $(dirname $0))/

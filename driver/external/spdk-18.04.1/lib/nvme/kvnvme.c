@@ -132,13 +132,19 @@ _nvme_kv_cmd_setup_retrieve_request(struct spdk_nvme_ns *ns, struct nvme_request
 
         cmd = &req->cmd;
         cmd->cdw10 = buffer_size / 4; // In DWORDs
+	uint32_t invalidate = (buffer_size % 4);
+	if(buffer_size > 0 && invalidate != 0){
+		cmd->cdw10++;
+		invalidate = 4 - invalidate;
+	}
 
 	// cdw11:
 	// 2017.10.25 : for large value append / retrieve
 	// [0:7] key_size -1
 	// [8:15] option
         //cmd->cdw11 = key_size-1;
-	cmd->cdw11 = ((uint32_t)((option&0xFF)<<8)|((key_size-1)&0xFF));
+	//cmd->cdw11 = ((uint32_t)((option&0xFF)<<8)|((key_size-1)&0xFF));
+	cmd->cdw11 = ((uint32_t)((option&0xFF)<<8)|((invalidate&0x3)<<16)|((key_size-1)&0xFF));
 
         //
 	// Filling key value into (cdw10-13) in case key size is small than 16.

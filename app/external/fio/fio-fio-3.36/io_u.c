@@ -35,29 +35,32 @@ static bool random_map_free(struct fio_file *f, const uint64_t block)
 static uint64_t mark_random_map(struct thread_data *td, struct io_u *io_u,
 				uint64_t offset, uint64_t buflen)
 {
-	unsigned long long min_bs = td->o.min_bs[io_u->ddir];
+	//unsigned long long min_bs = td->o.min_bs[io_u->ddir];
+	unsigned long long max_bs = td->o.max_bs[io_u->ddir];
 	struct fio_file *f = io_u->file;
 	unsigned long long nr_blocks;
 	uint64_t block;
 
-	block = (offset - f->file_offset) / (uint64_t) min_bs;
-	nr_blocks = (buflen + min_bs - 1) / min_bs;
+	//block = (offset - f->file_offset) / (uint64_t) min_bs;
+	block = (offset - f->file_offset) / (uint64_t) max_bs;
+	//nr_blocks = (buflen + min_bs - 1) / min_bs;
+	nr_blocks = (buflen + max_bs - 1) / max_bs;
 	assert(nr_blocks > 0);
 
-	log_info("[block] : %lu\n", block);
+	//log_info("[block] : %lu\n", block);
 	//log_info("[nr_block 1] : %llu\t", nr_blocks);
 	if (!(io_u->flags & IO_U_F_BUSY_OK)) { //must run when bsrange is true.(check complite)
 		nr_blocks = axmap_set_nr(f->io_axmap, block, nr_blocks);
 		assert(nr_blocks > 0);
 	}
 
-	log_info("[nr_block 2] : %llu\t", nr_blocks);
+	//log_info("[nr_block 2] : %llu\t", nr_blocks);
 	//log_info("[nr_block size] : %llu\t", nr_blocks*min_bs);
 	//log_info("[buflen] : %lu\t", buflen);	
-	if ((nr_blocks * min_bs) < buflen)
-		buflen = nr_blocks * min_bs;
+	if ((nr_blocks * max_bs) < buflen)
+		buflen = nr_blocks * max_bs;
 
-	log_info("[F buflen] : %lu\n", buflen);
+	//log_info("[F buflen] : %lu\n", buflen);
 	return buflen;
 }
 
@@ -83,7 +86,8 @@ static uint64_t last_block(struct thread_data *td, struct fio_file *f,
 	if (td->o.min_bs[ddir] > td->o.ba[ddir])
 		max_size -= td->o.min_bs[ddir] - td->o.ba[ddir];
 
-	max_blocks = max_size / (uint64_t) td->o.ba[ddir];
+	//max_blocks = max_size / (uint64_t) td->o.ba[ddir];
+	max_blocks = max_size / (uint64_t) td->o.max_bs[ddir];
 	if (!max_blocks)
 		return 0;
 
@@ -332,8 +336,9 @@ static void loop_cache_invalidate(struct thread_data *td, struct fio_file *f)
 static int get_next_rand_block(struct thread_data *td, struct fio_file *f,
 			       enum fio_ddir ddir, uint64_t *b)
 {
-	if (!get_next_rand_offset(td, f, ddir, b))
+	if (!get_next_rand_offset(td, f, ddir, b)){
 		return 0;
+	}
 
 	if (td->o.time_based ||
 	    (td->o.file_service_type & __FIO_FSERVICE_NONUNIFORM)) {
@@ -470,8 +475,11 @@ static int get_next_block(struct thread_data *td, struct io_u *io_u,
 	if (!ret) {
 		if (offset != -1ULL)
 			io_u->offset = offset;
-		else if (b != -1ULL)
-			io_u->offset = b * td->o.ba[ddir];
+		else if (b != -1ULL){
+			log_info("[JH] block : %llu\t",b);
+			//io_u->offset = b * td->o.ba[ddir];
+			io_u->offset = b * td->o.max_bs[ddir];
+		}
 		else {
 			log_err("fio: bug in offset generation: offset=%llu, b=%llu\n", (unsigned long long) offset, (unsigned long long) b);
 			ret = 1;
@@ -611,15 +619,24 @@ static unsigned long long get_next_buflen(struct thread_data *td, struct io_u *i
 		}
 
 		power_2 = is_power_of_2(minbs);
+		
+		if (td->o.bsa[ddir]){
+			unsigned long long diff = buflen % td->o.bsa[ddir];
+			unsigned long long mid = td->o.bsa[ddir] / 2.0;
+			if (diff > mid) buflen += diff;
+			else buflen -= diff;
+			printf("[diff] : %llu\t[mid] : %llu\t[buflen] : %llu\n",diff,mid,buflen);
+		} else
 		if (!td->o.bs_unaligned && power_2)
 			buflen &= ~(minbs - 1);
 		else if (!td->o.bs_unaligned && !power_2)
 			buflen -= buflen % minbs;
+		
 		if (buflen > maxbs)
 			buflen = maxbs;
 	} while (!io_u_fits(td, io_u, buflen));
 
-	//log_info("[buflen] : %llu\n", buflen);
+	//log_info("[JH] buflen : %llu\n", buflen);
 	return buflen;
 }
 
@@ -988,6 +1005,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
 	}
 
 	io_u->buflen = get_next_buflen(td, io_u, is_random);
+	log_info("[JH] get_next_buflen : %lld\t", io_u->buflen);
 	if (!io_u->buflen) {
 		dprint(FD_IO, "io_u %p, failed getting buflen\n", io_u);
 		return 1;
@@ -1018,6 +1036,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
 	 */
 	if (td_random(td) && file_randommap(td, io_u->file))
 		io_u->buflen = mark_random_map(td, io_u, offset, io_u->buflen);
+	log_info("[JH] mark random map : %lld\n", io_u->buflen);
 
 out:
 	dprint_io_u(io_u, "fill");
@@ -1790,6 +1809,7 @@ struct io_u *get_io_u(struct thread_data *td)
 	long ret = 0;
 
 	io_u = __get_io_u(td);
+	//log_info("[get_io_u] : %lld\n", io_u->buflen);
 	if (!io_u) {
 		dprint(FD_IO, "__get_io_u failed\n");
 		return NULL;

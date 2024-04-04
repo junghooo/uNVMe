@@ -1442,7 +1442,8 @@ static void __init_rand_distribution(struct thread_data *td, struct fio_file *f)
 	uint64_t nranges;
 	uint64_t fsize;
 
-	range_size = min(td->o.min_bs[DDIR_READ], td->o.min_bs[DDIR_WRITE]);
+	//range_size = min(td->o.min_bs[DDIR_READ], td->o.min_bs[DDIR_WRITE]);
+	range_size = max(td->o.max_bs[DDIR_READ], td->o.max_bs[DDIR_WRITE]);
 	fsize = min(f->real_file_size, f->io_size);
 
 	nranges = (fsize + range_size - 1ULL) / range_size;
@@ -1532,7 +1533,8 @@ bool init_random_map(struct thread_data *td)
 		if (td->o.zone_mode == ZONE_MODE_STRIDED)
 			fsize = td->o.zone_range;
 
-		blocks = fsize / (unsigned long long) td->o.rw_min_bs;
+		//blocks = fsize / (unsigned long long) td->o.rw_min_bs;
+		blocks = fsize / (unsigned long long) max(td->o.max_bs[DDIR_READ],td->o.max_bs[DDIR_WRITE]);
 
 		if (check_rand_gen_limits(td, f, blocks))
 			return false;
