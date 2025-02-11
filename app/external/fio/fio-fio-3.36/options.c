@@ -1280,6 +1280,71 @@ static int str_random_distribution_cb(void *data, const char *str)
 	return 0;
 }
 
+static int str_write_random_distribution_cb(void *data, const char *str)
+{
+	struct thread_data *td = cb_data_to_td(data);
+	double val;
+	double center = -1;
+	char *nr;
+
+	if (td->o.write_random_distribution == FIO_RAND_DIST_ZIPF)
+		val = FIO_DEF_ZIPF;
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_PARETO)
+		val = FIO_DEF_PARETO;
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_GAUSS)
+		val = 0.0;
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_ZONED)
+		return parse_zoned_distribution(td, str, false);
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_ZONED_ABS)
+		return parse_zoned_distribution(td, str, true);
+	else
+		return 0;
+
+	nr = get_opt_postfix(str);
+	if (nr && !split_parse_distr(nr, &val, &center)) {
+		log_err("fio: random postfix parsing failed\n");
+		free(nr);
+		return 1;
+	}
+
+	free(nr);
+
+	if (center != -1 && (center < 0.00 || center > 1.00)) {
+		log_err("fio: distribution center out of range (0 <= center <= 1.0)\n");
+		return 1;
+	}
+	td->o.write_random_center.u.f = center;
+
+	if (td->o.write_random_distribution == FIO_RAND_DIST_ZIPF) {
+		if (val == 1.00) {
+			log_err("fio: zipf theta must different than 1.0\n");
+			return 1;
+		}
+		if (parse_dryrun())
+			return 0;
+		td->o.write_zipf_theta.u.f = val;
+	} else if (td->o.write_random_distribution == FIO_RAND_DIST_PARETO) {
+		if (val <= 0.00 || val >= 1.00) {
+			log_err("fio: pareto input out of range (0 < input < 1.0)\n");
+			return 1;
+		}
+		if (parse_dryrun())
+			return 0;
+		td->o.write_pareto_h.u.f = val;
+	} else {
+		if (val < 0.00 || val >= 100.0) {
+			log_err("fio: normal deviation out of range (0 <= input < 100.0)\n");
+			return 1;
+		}
+		if (parse_dryrun())
+			return 0;
+		td->o.write_gauss_dev.u.f = val;
+	}
+
+	return 0;
+}
+
+
 static int str_steadystate_cb(void *data, const char *str)
 {
 	struct thread_data *td = cb_data_to_td(data);
@@ -2580,6 +2645,45 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
 		.cb	= str_random_distribution_cb,
 		.help	= "Random offset distribution generator",
 		.def	= "random",
+		.posval	= {
+			  { .ival = "random",
+			    .oval = FIO_RAND_DIST_RANDOM,
+			    .help = "Completely random",
+			  },
+			  { .ival = "zipf",
+			    .oval = FIO_RAND_DIST_ZIPF,
+			    .help = "Zipf distribution",
+			  },
+			  { .ival = "pareto",
+			    .oval = FIO_RAND_DIST_PARETO,
+			    .help = "Pareto distribution",
+			  },
+			  { .ival = "normal",
+			    .oval = FIO_RAND_DIST_GAUSS,
+			    .help = "Normal (Gaussian) distribution",
+			  },
+			  { .ival = "zoned",
+			    .oval = FIO_RAND_DIST_ZONED,
+			    .help = "Zoned random distribution",
+			  },
+			  { .ival = "zoned_abs",
+			    .oval = FIO_RAND_DIST_ZONED_ABS,
+			    .help = "Zoned absolute random distribution",
+			  },
+		},
+		.category = FIO_OPT_C_IO,
+		.group	= FIO_OPT_G_RANDOM,
+	},
+	//make new option(jh)
+	{
+		.name	= "write_random_distribution",
+		.lname	= "Write Random Distribution",
+		.type	= FIO_OPT_STR,
+		.off1	= offsetof(struct thread_options, write_random_distribution),
+		.cb	= str_write_random_distribution_cb,
+		.help	= "Random offset distribution generator",
+		.hide   = 1,
+		// .def	= "random",
 		.posval	= {
 			  { .ival = "random",
 			    .oval = FIO_RAND_DIST_RANDOM,

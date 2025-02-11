@@ -162,6 +162,11 @@ struct fio_file {
 		struct gauss_state gauss;
 	};
 
+	union {
+		struct zipf_state write_zipf;
+		struct gauss_state write_gauss;
+	};
+
 	int references;
 	enum fio_file_flags flags;
 

@@ -1479,6 +1479,52 @@ static bool init_rand_distribution(struct thread_data *td)
 	return true;
 }
 
+static void __init_write_rand_distribution(struct thread_data *td, struct fio_file *f)
+{
+	unsigned int range_size, seed;
+	uint64_t nranges;
+	uint64_t fsize;
+
+	//range_size = min(td->o.min_bs[DDIR_READ], td->o.min_bs[DDIR_WRITE]);
+	range_size = max(td->o.max_bs[DDIR_READ], td->o.max_bs[DDIR_WRITE]);
+	fsize = min(f->real_file_size, f->io_size);
+
+	nranges = (fsize + range_size - 1ULL) / range_size;
+
+	seed = jhash(f->file_name, strlen(f->file_name), 0) * td->thread_number *
+		td->rand_seeds[FIO_RAND_BLOCK_OFF];
+
+	if (td->o.write_random_distribution == FIO_RAND_DIST_ZIPF)
+		zipf_init(&f->write_zipf, nranges, td->o.zipf_theta.u.f, td->o.write_random_center.u.f, seed);
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_PARETO)
+		pareto_init(&f->write_zipf, nranges, td->o.pareto_h.u.f, td->o.write_random_center.u.f, seed);
+	else if (td->o.write_random_distribution == FIO_RAND_DIST_GAUSS)
+		gauss_init(&f->write_gauss, nranges, td->o.gauss_dev.u.f, td->o.write_random_center.u.f, seed);
+}
+
+static bool init_write_rand_distribution(struct thread_data *td)
+{
+	struct fio_file *f;
+	unsigned int i;
+	int state;
+
+	if (!td->o.write_random_distribution)
+		return true;
+
+	if (td->o.write_random_distribution == FIO_RAND_DIST_RANDOM ||
+	    td->o.write_random_distribution == FIO_RAND_DIST_ZONED ||
+	    td->o.write_random_distribution == FIO_RAND_DIST_ZONED_ABS)
+		return false;
+
+	state = td_bump_runstate(td, TD_SETTING_UP);
+
+	for_each_file(td, f, i)
+		__init_write_rand_distribution(td, f);
+
+	td_restore_runstate(td, state);
+	return true;
+}
+
 /*
  * Check if the number of blocks exceeds the randomness capability of
  * the selected generator. Tausworthe is 32-bit, the others are fully
@@ -1522,8 +1568,10 @@ bool init_random_map(struct thread_data *td)
 	struct fio_file *f;
 	unsigned int i;
 
-	if (init_rand_distribution(td))
-		return true;
+	if (init_rand_distribution(td)){
+		if (init_write_rand_distribution(td))
+			return true;
+	}
 	if (!td_random(td))
 		return true;
 

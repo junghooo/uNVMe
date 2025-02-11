@@ -145,7 +145,13 @@ static int __get_next_rand_offset_zipf(struct thread_data *td,
 				       struct fio_file *f, enum fio_ddir ddir,
 				       uint64_t *b)
 {
-	*b = zipf_next(&f->zipf);
+	if(ddir == DDIR_READ){
+		*b = zipf_next(&f->zipf);
+	}
+	else if(ddir == DDIR_WRITE){
+		*b = zipf_next(&f->write_zipf);
+	}
+	// *b = zipf_next(&f->zipf);
 	return 0;
 }
 
@@ -153,7 +159,13 @@ static int __get_next_rand_offset_pareto(struct thread_data *td,
 					 struct fio_file *f, enum fio_ddir ddir,
 					 uint64_t *b)
 {
-	*b = pareto_next(&f->zipf);
+	if(ddir == DDIR_READ){
+		*b = pareto_next(&f->zipf);
+	}
+	else if(ddir == DDIR_WRITE){
+		*b = pareto_next(&f->write_zipf);
+	}
+	// *b = pareto_next(&f->zipf);
 	return 0;
 }
 
@@ -161,7 +173,13 @@ static int __get_next_rand_offset_gauss(struct thread_data *td,
 					struct fio_file *f, enum fio_ddir ddir,
 					uint64_t *b)
 {
-	*b = gauss_next(&f->gauss);
+	if(ddir == DDIR_READ){
+		*b = gauss_next(&f->gauss);
+	}
+	else if(ddir == DDIR_WRITE){
+		*b = gauss_next(&f->write_gauss);
+	}
+	// *b = gauss_next(&f->gauss);
 	return 0;
 }
 
@@ -287,7 +305,34 @@ bail:
 static int get_next_rand_offset(struct thread_data *td, struct fio_file *f,
 				enum fio_ddir ddir, uint64_t *b)
 {
-	if (td->o.random_distribution == FIO_RAND_DIST_RANDOM) {
+	unsigned int random_distribution;
+	if(ddir == DDIR_READ){
+		random_distribution = td->o.random_distribution;
+	}
+	else if(ddir == DDIR_WRITE){
+		random_distribution = td->o.write_random_distribution;
+	}
+
+	// if (td->o.random_distribution == FIO_RAND_DIST_RANDOM) {
+	// 	uint64_t lastb;
+
+	// 	lastb = last_block(td, f, ddir);
+	// 	if (!lastb)
+	// 		return 1;
+
+	// 	return __get_next_rand_offset(td, f, ddir, b, lastb);
+	// } else if (td->o.random_distribution == FIO_RAND_DIST_ZIPF)
+	// 	return __get_next_rand_offset_zipf(td, f, ddir, b);
+	// else if (td->o.random_distribution == FIO_RAND_DIST_PARETO)
+	// 	return __get_next_rand_offset_pareto(td, f, ddir, b);
+	// else if (td->o.random_distribution == FIO_RAND_DIST_GAUSS)
+	// 	return __get_next_rand_offset_gauss(td, f, ddir, b);
+	// else if (td->o.random_distribution == FIO_RAND_DIST_ZONED)
+	// 	return __get_next_rand_offset_zoned(td, f, ddir, b);
+	// else if (td->o.random_distribution == FIO_RAND_DIST_ZONED_ABS)
+	// 	return __get_next_rand_offset_zoned_abs(td, f, ddir, b);
+
+	if(random_distribution == FIO_RAND_DIST_RANDOM) {
 		uint64_t lastb;
 
 		lastb = last_block(td, f, ddir);
@@ -295,15 +340,15 @@ static int get_next_rand_offset(struct thread_data *td, struct fio_file *f,
 			return 1;
 
 		return __get_next_rand_offset(td, f, ddir, b, lastb);
-	} else if (td->o.random_distribution == FIO_RAND_DIST_ZIPF)
+	} else if (random_distribution == FIO_RAND_DIST_ZIPF)
 		return __get_next_rand_offset_zipf(td, f, ddir, b);
-	else if (td->o.random_distribution == FIO_RAND_DIST_PARETO)
+	else if (random_distribution == FIO_RAND_DIST_PARETO)
 		return __get_next_rand_offset_pareto(td, f, ddir, b);
-	else if (td->o.random_distribution == FIO_RAND_DIST_GAUSS)
+	else if (random_distribution == FIO_RAND_DIST_GAUSS)
 		return __get_next_rand_offset_gauss(td, f, ddir, b);
-	else if (td->o.random_distribution == FIO_RAND_DIST_ZONED)
+	else if (random_distribution == FIO_RAND_DIST_ZONED)
 		return __get_next_rand_offset_zoned(td, f, ddir, b);
-	else if (td->o.random_distribution == FIO_RAND_DIST_ZONED_ABS)
+	else if (random_distribution == FIO_RAND_DIST_ZONED_ABS)
 		return __get_next_rand_offset_zoned_abs(td, f, ddir, b);
 
 	log_err("fio: unknown random distribution: %d\n", td->o.random_distribution);
