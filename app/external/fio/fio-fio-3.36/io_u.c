@@ -305,7 +305,7 @@ bail:
 static int get_next_rand_offset(struct thread_data *td, struct fio_file *f,
 				enum fio_ddir ddir, uint64_t *b)
 {
-	unsigned int random_distribution;
+	unsigned int random_distribution=NULL;
 	if(ddir == DDIR_READ){
 		random_distribution = td->o.random_distribution;
 	}

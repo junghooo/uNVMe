@@ -452,7 +452,7 @@ static int kv_fio_setup(struct thread_data *td)
 		fio_thread->min_ks = atoi(DEFAULT_KEY_SIZE);
 		fio_thread->max_ks = atoi(DEFAULT_KEY_SIZE);
 	}
-	printf("[JH] minks : %u\t maxks : %u\n",fio_thread->min_ks,fio_thread->max_ks);
+	// printf("[JH] minks : %u\t maxks : %u\n",fio_thread->min_ks,fio_thread->max_ks);
 
 	// for io job information
 	struct kv_dev_info *tmpinfo = fio_thread->dev_info;
@@ -601,12 +601,12 @@ static int kv_fio_queue(struct thread_data *td, struct io_u *io_u)
 	//kv->key.length = fio_req->max_ks;
 	uint16_t range = fio_req->max_ks - fio_req->min_ks + 1;
 	kv->key.length = ((io_u->offset / td->o.max_bs[io_u->ddir]) % range) + fio_req->min_ks;
-	printf("[JH] key length : %u\t",kv->key.length);
+	// printf("[JH] key length : %u\t",kv->key.length);
 	kv->keyspace_id = KV_KEYSPACE_IODATA;
 
 	kv->value.value = io_u->buf;
 	kv->value.length = io_u->xfer_buflen;
-	printf("[JH] val_len : %d\n", kv->value.length);
+	// printf("[JH] val_len : %d\n", kv->value.length);
 	kv->value.actual_value_size = 0;
 	kv->value.offset = 0;
 
@@ -616,8 +616,8 @@ static int kv_fio_queue(struct thread_data *td, struct io_u *io_u)
 	} else { // KV_TYPE_SSD
 		//uint64_t _key = io_u->offset / io_u->xfer_buflen;
 		uint64_t _key = (io_u->offset / td->o.max_bs[io_u->ddir]);
-		printf("[JH] offset : %llu\t", io_u->offset);
-		printf("[JH] _key : %lu\n",_key);
+		// printf("[JH] offset : %llu\t", io_u->offset);
+		// printf("[JH] _key : %lu\n",_key);
 		memcpy(fio_req->key, &_key, MIN(kv->key.length, sizeof(uint64_t)));
 		if (io_u->xfer_buflen == ZERO_VALUE_MAGICNUM) {
 			//kv->value.length = 0;

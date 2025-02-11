@@ -182,7 +182,6 @@ struct thread_options {
 	unsigned int verify_only;
 
 	unsigned int random_distribution;
-	unsigned int write_random_distribution;
 	unsigned int exitall_error;
 
 	struct zone_split *zone_split[DDIR_RWDIR_CNT];
@@ -192,11 +191,13 @@ struct thread_options {
 	fio_fp64_t pareto_h;
 	fio_fp64_t gauss_dev;
 	fio_fp64_t random_center;
-
+//add jh
 	fio_fp64_t write_zipf_theta;
 	fio_fp64_t write_pareto_h;
 	fio_fp64_t write_gauss_dev;
 	fio_fp64_t write_random_center;
+	unsigned int write_random_distribution;
+	unsigned int pending; //need to align 8bit, so add this
 
 	unsigned int random_generator;
 
@@ -508,7 +509,6 @@ struct thread_options_pack {
 	uint32_t bs_is_seq_rand;
 
 	uint32_t random_distribution;
-	uint32_t write_random_distribution;
 	uint32_t exitall_error;
 
 	uint32_t sync_file_range;
@@ -520,11 +520,13 @@ struct thread_options_pack {
 	fio_fp64_t pareto_h;
 	fio_fp64_t gauss_dev;
 	fio_fp64_t random_center;
-
+//add jh
 	fio_fp64_t write_zipf_theta;
 	fio_fp64_t write_pareto_h;
 	fio_fp64_t write_gauss_dev;
 	fio_fp64_t write_random_center;
+	uint32_t write_random_distribution;
+	uint32_t pending; //need to align 8bit, so add this
 
 	uint32_t random_generator;
 
