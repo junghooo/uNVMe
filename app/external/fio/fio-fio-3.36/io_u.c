@@ -521,7 +521,7 @@ static int get_next_block(struct thread_data *td, struct io_u *io_u,
 		if (offset != -1ULL)
 			io_u->offset = offset;
 		else if (b != -1ULL){
-			log_info("[JH] block : %llu\t",b);
+			// log_info("[JH] block : %llu\t",b);
 			//io_u->offset = b * td->o.ba[ddir];
 			io_u->offset = b * td->o.max_bs[ddir];
 		}
@@ -1050,7 +1050,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
 	}
 
 	io_u->buflen = get_next_buflen(td, io_u, is_random);
-	log_info("[JH] get_next_buflen : %lld\t", io_u->buflen);
+	// log_info("[JH] get_next_buflen : %lld\t", io_u->buflen);
 	if (!io_u->buflen) {
 		dprint(FD_IO, "io_u %p, failed getting buflen\n", io_u);
 		return 1;
@@ -1081,7 +1081,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
 	 */
 	if (td_random(td) && file_randommap(td, io_u->file))
 		io_u->buflen = mark_random_map(td, io_u, offset, io_u->buflen);
-	log_info("[JH] mark random map : %lld\n", io_u->buflen);
+	// log_info("[JH] mark random map : %lld\n", io_u->buflen);
 
 out:
 	dprint_io_u(io_u, "fill");
