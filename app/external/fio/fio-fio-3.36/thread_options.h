@@ -164,9 +164,6 @@ struct thread_options {
 	unsigned int override_sync;
 	unsigned int rand_repeatable;
 	unsigned long long rand_seed;
-//add jh
-	unsigned long long write_rand_seed;
-
 	unsigned int log_avg_msec;
 	unsigned int log_hist_msec;
 	unsigned int log_hist_coarseness;
@@ -200,7 +197,7 @@ struct thread_options {
 	fio_fp64_t write_gauss_dev;
 	fio_fp64_t write_random_center;
 	unsigned int write_random_distribution;
-	unsigned int pending; //need to align 8bit, so add this
+	unsigned long long write_rand_seed;
 
 	unsigned int random_generator;
 
@@ -496,9 +493,6 @@ struct thread_options_pack {
 	uint32_t override_sync;
 	uint32_t rand_repeatable;
 	uint64_t rand_seed;
-//add jh
-	uint32_t write_rand_seed;
-
 	uint32_t log_avg_msec;
 	uint32_t log_hist_msec;
 	uint32_t log_hist_coarseness;
@@ -532,7 +526,7 @@ struct thread_options_pack {
 	fio_fp64_t write_gauss_dev;
 	fio_fp64_t write_random_center;
 	uint32_t write_random_distribution;
-	uint32_t pending; //need to align 8bit, so add this
+	uint32_t write_rand_seed;
 
 	uint32_t random_generator;
 
