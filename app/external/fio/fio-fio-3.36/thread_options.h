@@ -164,6 +164,9 @@ struct thread_options {
 	unsigned int override_sync;
 	unsigned int rand_repeatable;
 	unsigned long long rand_seed;
+//add jh
+	unsigned long long write_rand_seed;
+
 	unsigned int log_avg_msec;
 	unsigned int log_hist_msec;
 	unsigned int log_hist_coarseness;
@@ -493,6 +496,9 @@ struct thread_options_pack {
 	uint32_t override_sync;
 	uint32_t rand_repeatable;
 	uint64_t rand_seed;
+//add jh
+	uint32_t write_rand_seed;
+
 	uint32_t log_avg_msec;
 	uint32_t log_hist_msec;
 	uint32_t log_hist_coarseness;

@@ -208,6 +208,9 @@ int convert_thread_options_to_cpu(struct thread_options *o,
 	o->override_sync = le32_to_cpu(top->override_sync);
 	o->rand_repeatable = le32_to_cpu(top->rand_repeatable);
 	o->rand_seed = le64_to_cpu(top->rand_seed);
+//add jh
+	o->write_rand_seed = le64_to_cpu(top->write_rand_seed);
+
 	o->log_entries = le32_to_cpu(top->log_entries);
 	o->log_avg_msec = le32_to_cpu(top->log_avg_msec);
 	o->log_hist_msec = le32_to_cpu(top->log_hist_msec);
@@ -456,6 +459,9 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
 	top->override_sync = cpu_to_le32(o->override_sync);
 	top->rand_repeatable = cpu_to_le32(o->rand_repeatable);
 	top->rand_seed = __cpu_to_le64(o->rand_seed);
+//add jh
+	top->write_rand_seed = __cpu_to_le64(o->write_rand_seed);
+
 	top->log_entries = cpu_to_le32(o->log_entries);
 	top->log_avg_msec = cpu_to_le32(o->log_avg_msec);
 	top->log_max = cpu_to_le32(o->log_max);

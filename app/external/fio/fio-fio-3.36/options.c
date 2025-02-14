@@ -2588,6 +2588,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
 		.category = FIO_OPT_C_IO,
 		.group	= FIO_OPT_G_RANDOM,
 	},
+	//make new option(jh)
+	{
+		.name	= "writeseed",
+		.lname	= "Write seed different with read seed",
+		.type	= FIO_OPT_BOOL,
+		.off1	= offsetof(struct thread_options, write_rand_seed),
+		.help	= "True if write seed is different with read seed",
+		.def	= "0",
+		.category = FIO_OPT_C_IO,
+		.group	= FIO_OPT_G_RANDOM,
+	},
 	{
 		.name	= "norandommap",
 		.lname	= "No randommap",

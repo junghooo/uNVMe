@@ -1492,14 +1492,14 @@ static void __init_write_rand_distribution(struct thread_data *td, struct fio_fi
 	nranges = (fsize + range_size - 1ULL) / range_size;
 
 	seed = jhash(f->file_name, strlen(f->file_name), 0) * td->thread_number *
-		td->rand_seeds[FIO_RAND_BLOCK_OFF];
+		td->rand_seeds[FIO_RAND_BLOCK_OFF] * (td->o.write_rand_seed + 1);
 
 	if (td->o.write_random_distribution == FIO_RAND_DIST_ZIPF)
-		zipf_init(&f->write_zipf, nranges, td->o.zipf_theta.u.f, td->o.write_random_center.u.f, seed);
+		zipf_init(&f->write_zipf, nranges, td->o.write_zipf_theta.u.f, td->o.write_random_center.u.f, seed);
 	else if (td->o.write_random_distribution == FIO_RAND_DIST_PARETO)
-		pareto_init(&f->write_zipf, nranges, td->o.pareto_h.u.f, td->o.write_random_center.u.f, seed);
+		pareto_init(&f->write_zipf, nranges, td->o.write_pareto_h.u.f, td->o.write_random_center.u.f, seed);
 	else if (td->o.write_random_distribution == FIO_RAND_DIST_GAUSS)
-		gauss_init(&f->write_gauss, nranges, td->o.gauss_dev.u.f, td->o.write_random_center.u.f, seed);
+		gauss_init(&f->write_gauss, nranges, td->o.write_gauss_dev.u.f, td->o.write_random_center.u.f, seed);
 }
 
 static bool init_write_rand_distribution(struct thread_data *td)
